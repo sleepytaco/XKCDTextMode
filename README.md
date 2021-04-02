@@ -1,6 +1,6 @@
-# Project 3 - *Parstagram*
+# *XKCD Text Mode*
 
-**Parstagram** is a XKCD comic viewer that uses the XKCD API.
+**XKCD Text Mode** is a XKCD comic viewer that uses the XKCD API.
 
 Time spent: **4** hours spent in total
 
