@@ -9,6 +9,9 @@ Time spent: **4** hours spent in total
 - [X] User can view a comic's transcript if available.
 - [X] User can view the comic image itself
 - [X] User can view the last opened comic
+- [ ] Store history of viewed comics using a RecyclerView
+- [ ] User can sign up to create a new account using Parse authentication.
+- [ ] User can keep track of viewed comics
 
 ## Video Walkthrough
 
