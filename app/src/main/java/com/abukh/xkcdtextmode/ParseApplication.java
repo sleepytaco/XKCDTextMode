@@ -3,6 +3,8 @@ package com.abukh.xkcdtextmode;
 import android.app.Application;
 
 import com.parse.Parse;
+import com.parse.ParseObject;
+
 import android.app.Application;
 
 public class ParseApplication extends Application {
@@ -11,6 +13,8 @@ public class ParseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        ParseObject.registerSubclass(XKCD.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("rWT6DY8xYhQYfvU7zMImEnGEQr4ZyMSZORrQyWjX")

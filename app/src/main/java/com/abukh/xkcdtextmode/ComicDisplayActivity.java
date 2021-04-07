@@ -1,6 +1,11 @@
 package com.abukh.xkcdtextmode;
 
 import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +18,11 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.Stack;
 
 public class ComicDisplayActivity extends AppCompatActivity {
@@ -39,7 +49,16 @@ public class ComicDisplayActivity extends AppCompatActivity {
         openComicButton = findViewById(R.id.openComicButton);
 
         Intent intent = getIntent();
-        comic = (XKCDComic) intent.getSerializableExtra("comic_details");
+        Integer comic_num = intent.getIntExtra("comic_num", -1);
+        if (comic_num == -1) {
+            comic = (XKCDComic) intent.getSerializableExtra("comic_details");
+        } else {
+            getComic(comic_num);
+        }
+
+        while (comic == null) {
+
+        }
 
         script = comic.getTranscript();
 
@@ -117,6 +136,51 @@ public class ComicDisplayActivity extends AppCompatActivity {
         previousButton.setVisibility(View.INVISIBLE);
         nextButton.setVisibility(View.VISIBLE);
         lineTextView.setText("#" + comic.getComicNum() + "\n" + comic.getTitle() + "\n~ " + comic.getDate());
+    }
+
+    private void getComic(int comic_num) {
+
+        comic = null;
+
+        String url = "https://xkcd.com/" + comic_num + "/info.0.json";
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(url).build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String jsonData = response.body().string();
+
+                if (response.isSuccessful()) {
+
+                    try {
+                        JSONObject details = new JSONObject(jsonData);
+
+                        comic = new XKCDComic(
+                                details.getInt("num"),
+                                details.getInt("month"),
+                                details.getInt("year"),
+                                details.getString("title"),
+                                details.getString("transcript"),
+                                details.getString("img"));
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    //alertUserAboutError();
+                    Toast.makeText(ComicDisplayActivity.this, "Uh-oh! Internet problems :(", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 
     private boolean isNetworkAvailable() {

@@ -6,12 +6,15 @@ Time spent: **2** hours spent in total
 
 ### User Stories
 
+- [X] User can sign up to create a new account using Parse authentication.
 - [X] User can view a comic's transcript if available.
 - [X] User can view the comic image itself
 - [X] User can view the last opened comic
-- [ ] Store history of viewed comics using a RecyclerView
-- [X] User can sign up to create a new account using Parse authentication.
-- [ ] User can keep track of viewed comics
+- [ ] User can mark comics as favourites
+- [X] Store history of viewed comics using a RecyclerView
+- [ ] Store comics marked favorite by the user using a RecyclerView
+- [X] Bottom naviagtion to switch between Home view, Favorite comics view and History view
+- [ ] User can keep track of number of viewed comics and is updated as the user reads new comics
 
 ## Video Walkthrough
 
