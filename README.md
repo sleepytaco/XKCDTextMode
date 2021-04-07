@@ -14,7 +14,8 @@ Time spent: **8** hours spent in total
 - [X] Store history of viewed comics using a RecyclerView
 - [X] Store comics marked favorite by the user using a RecyclerView
 - [X] Bottom naviagtion to switch between Home view, Favorite comics view and History view
-- [ ] User can keep track of number of viewed comics and is updated as the user reads new comics
+- [X] User can mark/unmark comics as favorites withtin the Favorite and History recycler views
+- [ ] Via a progress bar the user can keep track of number of viewed comics and is updated as the user reads new comics
 
 ## Video Walkthrough
 

@@ -115,6 +115,12 @@ public class HistoryFragment extends Fragment {
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        queryComicsHistory();
+    }
+
     protected void queryComicsHistory() {
         ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
         //query.setLimit(10);

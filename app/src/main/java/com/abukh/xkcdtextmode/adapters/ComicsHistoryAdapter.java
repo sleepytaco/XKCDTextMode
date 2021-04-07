@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,7 +21,12 @@ import com.abukh.xkcdtextmode.XKCDComic;
 import com.abukh.xkcdtextmode.fragments.HistoryFragment;
 import com.abukh.xkcdtextmode.fragments.HomeFragment;
 import com.bumptech.glide.Glide;
+import com.parse.FindCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,16 +94,27 @@ public class ComicsHistoryAdapter extends RecyclerView.Adapter<ComicsHistoryAdap
         private TextView row;
         private RelativeLayout container;
         private XKCDComic comic = null;
+        private Button favButton;
+        private int toggleSwitch = 0;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             row = itemView.findViewById(R.id.tvRow);
             container = itemView.findViewById(R.id.history_container);
+            favButton = itemView.findViewById(R.id.favButton);
         }
 
         // Binds the data to the view elements
         public void bind(XKCD comic) {
             row.setText(comic.getComicTitle());
+
+            if (comic.getIsFavorite().equals("1")) {
+                toggleSwitch = 1;
+                favButton.setBackgroundResource(R.drawable.ic_baseline_star_24);
+            } else {
+                favButton.setBackgroundResource(R.drawable.ic_baseline_star_border_24);
+
+            }
 
             container.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -107,6 +124,53 @@ public class ComicsHistoryAdapter extends RecyclerView.Adapter<ComicsHistoryAdap
                     context.startActivity(intent);
                 }
             });
+
+            favButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    setComicAsFavorite(comic.getComicNum());
+                }
+            });
+
+        }
+
+        private void setComicAsFavorite(Integer comic_num) {
+            ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+            query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+            query.whereEqualTo(XKCD.KEY_COMIC_NUM, comic_num);
+
+            query.findInBackground(new FindCallback<XKCD>() {
+                @Override
+                public void done(List<XKCD> comics, ParseException e) {
+                    if (e != null) {
+                        Toast.makeText(context, "Issue with getting comic details", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    if (comics.get(0).getIsFavorite().equals("1")) {
+                        toggleSwitch = 1;
+                        comics.get(0).setIsFavorite("0");
+                    } else {
+                        toggleSwitch = 0;
+                        comics.get(0).setIsFavorite("1");
+                    }
+
+                    comics.get(0).saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            toggleButton();
+                        }
+                    });
+                }
+            });
+        }
+
+        private void toggleButton() {
+            if (toggleSwitch == 0) { // if button is off
+                favButton.setBackgroundResource(R.drawable.ic_baseline_star_24);
+            } else { // button is on
+                favButton.setBackgroundResource(R.drawable.ic_baseline_star_border_24);
+            }
         }
     }
 

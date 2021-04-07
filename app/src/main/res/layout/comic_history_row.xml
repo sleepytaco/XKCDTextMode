@@ -13,6 +13,15 @@
         tools:text="#601 Game Theory ~ June, 2009"
         android:textSize="20dp"
         android:layout_margin="5dp"
+        android:layout_toRightOf="@id/favButton"
+        />
+
+    <Button
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/favButton"
+        android:layout_margin="5dp"
+        android:layout_alignParentLeft="true"
         />
 
 </RelativeLayout>

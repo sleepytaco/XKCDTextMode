@@ -20,10 +20,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.abukh.xkcdtextmode.AlertDialogFragment;
 import com.abukh.xkcdtextmode.ComicDisplayActivity;
+import com.abukh.xkcdtextmode.LoginActivity;
 import com.abukh.xkcdtextmode.MainActivity;
 import com.abukh.xkcdtextmode.R;
 import com.abukh.xkcdtextmode.XKCD;
@@ -65,7 +67,8 @@ public class HomeFragment extends Fragment {
 
     private Button getRandomComic;
     private Button previousComicButton;
-
+    private Button btnLogout;
+    private TextView tvLoggedInAs;
     private volatile int total_comics = -1;
     private int previousComicNum = -1;
     private int addedToParse = -1;
@@ -115,8 +118,12 @@ public class HomeFragment extends Fragment {
 
         getRandomComic = view.findViewById(R.id.getRandomComicButton);
         previousComicButton = view.findViewById(R.id.previousComicButton);
+        btnLogout = view.findViewById(R.id.btnLogout);
+        tvLoggedInAs = view.findViewById(R.id.tvLoggedInAs);
 
         previousComicButton.setVisibility(View.INVISIBLE);
+
+        tvLoggedInAs.setText("Logged in as " + ParseUser.getCurrentUser().getUsername());
 
         alreadyRead = new ArrayList<>();
 
@@ -143,7 +150,23 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (isNetworkAvailable()) {
-                    getComic(previousComicNum);
+                    getPreviousComicFromParse();                }
+            }
+        });
+
+        btnLogout.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                ParseUser.logOut();
+                ParseUser currentUser = ParseUser.getCurrentUser(); // this will now be null
+
+                if (currentUser != null) {
+                    Toast.makeText(getContext(), "Error logging you out!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent i = new Intent(getContext(), LoginActivity.class);
+                    startActivity(i);
+                    getActivity().finish();
                 }
             }
         });
@@ -238,9 +261,7 @@ public class HomeFragment extends Fragment {
                                     details.getString("transcript"),
                                     details.getString("img"));
 
-                            Log.v(TAG, "Attemptin to add comic to parse");
                             addComicToParse(comic);
-                            Log.v(TAG, "Done with parse");
 
                             while (addedToParse == -1) {
 
@@ -249,7 +270,6 @@ public class HomeFragment extends Fragment {
                             addedToParse = -1;
 
                             Intent intent = new Intent(getContext(), ComicDisplayActivity.class);
-                            // intent.putExtra("comic_details", (Serializable) comic);
                             intent.putExtra("comic_num", comic.getComicNum());
                             startActivity(intent);
                         } catch (JSONException e) {
@@ -263,6 +283,32 @@ public class HomeFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void getPreviousComicFromParse() {
+
+        ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+        query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+        query.addDescendingOrder("createdAt"); // order the objects according to createdAt column value
+
+        query.findInBackground(new FindCallback<XKCD>() {
+
+            @Override
+            public void done(List<XKCD> comics, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+
+                if (comics.isEmpty()) {
+                    Toast.makeText(getContext(), "No previous comic found!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(getContext(), ComicDisplayActivity.class);
+                    intent.putExtra("comic_num", comics.get(0).getComicNum());
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void addComicToParse(XKCDComic comic) {
