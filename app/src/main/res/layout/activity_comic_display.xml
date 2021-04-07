@@ -17,7 +17,8 @@
         android:text="PREV"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/openComicButton"/>
 
     <Button
         android:id="@+id/nextButton"
@@ -27,18 +28,29 @@
         android:text="NEXT"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintLeft_toRightOf="@id/favButton"/>
 
     <Button
         android:id="@+id/openComicButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:text="OPEN COMIC"
-        android:textSize="20sp"
+        android:text="OPEN Comic"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/nextButton"
-        app:layout_constraintStart_toEndOf="@+id/previousButton" />
+        app:layout_constraintLeft_toRightOf="@id/previousButton"
+        app:layout_constraintRight_toLeftOf="@id/favButton"/>
+
+    <Button
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:id="@+id/favButton"
+        android:layout_marginBottom="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/nextButton"
+        app:layout_constraintLeft_toRightOf="@id/openComicButton"
+        />
 
     <ScrollView
         android:id="@+id/scrollView"

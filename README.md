@@ -1,8 +1,8 @@
 # *XKCD Text Mode*
 
-**XKCD Text Mode** is a XKCD comic viewer that uses the XKCD API.
+**XKCD Text Mode** is a XKCD comic viewer that uses the XKCD API to retrieve and view a comic's transcript and image.
 
-Time spent: **2** hours spent in total
+Time spent: **8** hours spent in total
 
 ### User Stories
 
@@ -10,9 +10,9 @@ Time spent: **2** hours spent in total
 - [X] User can view a comic's transcript if available.
 - [X] User can view the comic image itself
 - [X] User can view the last opened comic
-- [ ] User can mark comics as favourites
+- [X] User can mark comics as favourites
 - [X] Store history of viewed comics using a RecyclerView
-- [ ] Store comics marked favorite by the user using a RecyclerView
+- [X] Store comics marked favorite by the user using a RecyclerView
 - [X] Bottom naviagtion to switch between Home view, Favorite comics view and History view
 - [ ] User can keep track of number of viewed comics and is updated as the user reads new comics
 

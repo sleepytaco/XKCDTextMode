@@ -39,11 +39,11 @@ public class XKCD extends ParseObject {
         put(KEY_COMIC_NUM, num);
     }
 
-    public Integer getIsFavorite() {
-        return getInt(KEY_IS_FAVORITE);
+    public String getIsFavorite() {
+        return getString(KEY_IS_FAVORITE);
     }
 
-    public void setIsFavorite(Integer favs) {
+    public void setIsFavorite(String favs) {
         put(KEY_IS_FAVORITE, favs);
     }
 }

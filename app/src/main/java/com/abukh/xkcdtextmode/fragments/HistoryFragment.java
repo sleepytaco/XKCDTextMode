@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import okhttp3.Call;
@@ -108,6 +109,7 @@ public class HistoryFragment extends Fragment {
         adapter = new ComicsHistoryAdapter(getContext(), allComics);
 
         rvComicsHistory.setAdapter(adapter);
+        rvComicsHistory.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         rvComicsHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         queryComicsHistory();
 

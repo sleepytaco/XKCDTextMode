@@ -18,11 +18,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.util.List;
 import java.util.Stack;
 
 public class ComicDisplayActivity extends AppCompatActivity {
@@ -31,9 +37,12 @@ public class ComicDisplayActivity extends AppCompatActivity {
     private Button previousButton;
     private TextView lineTextView;
     private Button openComicButton;
+    private Button favButton;
 
     private XKCDComic comic;
     public static final String TAG = ComicDisplayActivity.class.getSimpleName();
+
+    private int toggleSwitch = 0;
 
     private String[] script; // lines of the comic
     private Stack<String> linesStack = new Stack<>(); // stack to navigate between the lines
@@ -47,17 +56,21 @@ public class ComicDisplayActivity extends AppCompatActivity {
         previousButton = findViewById(R.id.previousButton);
         lineTextView = findViewById(R.id.lineTextView);
         openComicButton = findViewById(R.id.openComicButton);
+        favButton = findViewById(R.id.favButton);
 
         Intent intent = getIntent();
         Integer comic_num = intent.getIntExtra("comic_num", -1);
         if (comic_num == -1) {
+            Log.v(TAG, "Using serialized comic");
             comic = (XKCDComic) intent.getSerializableExtra("comic_details");
         } else {
+            Log.v(TAG, "Getting comic from API");
+            checkIfComicIsFavorite(comic_num);
             getComic(comic_num);
         }
 
         while (comic == null) {
-
+            Log.v(TAG, "Waiting for comic var to be not null...");
         }
 
         script = comic.getTranscript();
@@ -86,6 +99,75 @@ public class ComicDisplayActivity extends AppCompatActivity {
                     intent.putExtra("imageLink", comic.getImageLink());
                     startActivity(intent);
                 }
+            }
+        });
+
+        favButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setComicAsFavorite();
+            }
+        });
+    }
+
+    private void toggleButton() {
+        if (toggleSwitch == 0) { // if button is off
+            favButton.setBackgroundResource(R.drawable.ic_baseline_star_24);
+        } else { // button is on
+            favButton.setBackgroundResource(R.drawable.ic_baseline_star_border_24);
+        }
+    }
+
+    private void checkIfComicIsFavorite(int comic_num) {
+        ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+        query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+        query.whereEqualTo(XKCD.KEY_COMIC_NUM, comic_num);
+
+        query.findInBackground(new FindCallback<XKCD>() {
+            @Override
+            public void done(List<XKCD> comics, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+
+                if (comics.get(0).getIsFavorite().equals("1")) {
+                    toggleSwitch = 0;
+                } else {
+                    toggleSwitch = 1;
+                }
+                toggleButton();
+            }
+        });
+    }
+
+    private void setComicAsFavorite() {
+        ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+        query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+        query.whereEqualTo(XKCD.KEY_COMIC_NUM, comic.getComicNum());
+
+        query.findInBackground(new FindCallback<XKCD>() {
+            @Override
+            public void done(List<XKCD> comics, ParseException e) {
+                if (e != null) {
+                    Toast.makeText(ComicDisplayActivity.this, "Issue with getting comic details", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (comics.get(0).getIsFavorite().equals("1")) {
+                    toggleSwitch = 1;
+                    comics.get(0).setIsFavorite("0");
+                } else {
+                    toggleSwitch = 0;
+                    comics.get(0).setIsFavorite("1");
+                }
+
+                comics.get(0).saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        toggleButton();
+                    }
+                });
             }
         });
     }

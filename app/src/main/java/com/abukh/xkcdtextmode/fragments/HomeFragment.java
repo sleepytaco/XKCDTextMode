@@ -68,6 +68,7 @@ public class HomeFragment extends Fragment {
 
     private volatile int total_comics = -1;
     private int previousComicNum = -1;
+    private int addedToParse = -1;
     private ArrayList<Integer> alreadyRead;
 
     public HomeFragment() {
@@ -236,12 +237,20 @@ public class HomeFragment extends Fragment {
                                     details.getString("title"),
                                     details.getString("transcript"),
                                     details.getString("img"));
-                            
+
+                            Log.v(TAG, "Attemptin to add comic to parse");
                             addComicToParse(comic);
-                            
+                            Log.v(TAG, "Done with parse");
+
+                            while (addedToParse == -1) {
+
+                            }
+
+                            addedToParse = -1;
+
                             Intent intent = new Intent(getContext(), ComicDisplayActivity.class);
-                            intent.putExtra("comic_details", (Serializable) comic);
-                            intent.putExtra("comic_num", -1);
+                            // intent.putExtra("comic_details", (Serializable) comic);
+                            intent.putExtra("comic_num", comic.getComicNum());
                             startActivity(intent);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -276,7 +285,7 @@ public class HomeFragment extends Fragment {
                     Log.v(TAG, "No it is not in the DB");
                     XKCD newComic = new XKCD();
                     newComic.setUser(ParseUser.getCurrentUser());
-                    newComic.setComicTitle("#" + comic.getComicNum() + " " + comic.getTitle() + " ~ " + comic.getDate());
+                    newComic.setComicTitle("#" + comic.getComicNum() + " " + comic.getTitle());
                     newComic.setComicNum(comic.getComicNum());
 
                     newComic.saveInBackground(new SaveCallback() {
@@ -287,9 +296,13 @@ public class HomeFragment extends Fragment {
                                 Toast.makeText(getContext(), "Error while marking this comic as read!", Toast.LENGTH_SHORT).show();
                                 return;
                             }
+                            addedToParse = 1;
                         }
                     });
+                } else {
+                    addedToParse = 1;
                 }
+
             }
         });
     }

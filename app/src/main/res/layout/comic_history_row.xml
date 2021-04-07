@@ -12,5 +12,7 @@
         android:layout_height="wrap_content"
         tools:text="#601 Game Theory ~ June, 2009"
         android:textSize="20dp"
-        android:layout_margin="5dp"/>
+        android:layout_margin="5dp"
+        />
+
 </RelativeLayout>
