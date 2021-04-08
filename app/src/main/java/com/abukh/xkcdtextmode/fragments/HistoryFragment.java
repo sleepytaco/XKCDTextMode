@@ -1,6 +1,27 @@
 package com.abukh.xkcdtextmode.fragments;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.SystemClock;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.abukh.xkcdtextmode.R;
+import com.abukh.xkcdtextmode.XKCD;
+import com.abukh.xkcdtextmode.adapters.ComicsHistoryAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -8,35 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
-import com.abukh.xkcdtextmode.R;
-import com.abukh.xkcdtextmode.XKCD;
-import com.abukh.xkcdtextmode.XKCDComic;
-import com.abukh.xkcdtextmode.adapters.ComicsHistoryAdapter;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -52,7 +44,12 @@ public class HistoryFragment extends Fragment {
     private static final String TAG = "HistoryFragment";
 
     private RecyclerView rvComicsHistory;
+    private TextView textView;
     protected ComicsHistoryAdapter adapter;
+    private FloatingActionButton fab;
+    private FloatingActionButton fabConfirm;
+
+    private boolean noHistory = true;
 
     protected List<XKCD> allComics;
 
@@ -104,14 +101,107 @@ public class HistoryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         rvComicsHistory = view.findViewById(R.id.rvComicsHistory);
+        textView = view.findViewById(R.id.textView);
+        fab = view.findViewById(R.id.fab);
+        fabConfirm = view.findViewById(R.id.fabConfirm);
 
         allComics = new ArrayList<>();
-        adapter = new ComicsHistoryAdapter(getContext(), allComics);
+        adapter = new ComicsHistoryAdapter(getContext(), allComics, 0);
 
         rvComicsHistory.setAdapter(adapter);
         rvComicsHistory.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         rvComicsHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         queryComicsHistory();
+
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                fab.setVisibility(View.GONE);
+                fabConfirm.setVisibility(View.VISIBLE);
+                Snackbar.make(view, "Are you sure? Your progress will be permanently deleted.", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+
+                new CountDownTimer(5000, 1000) {
+
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        // do something after 1s
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        // do something end times 5s
+                        if (noHistory == false) {
+                            fab.setVisibility(View.GONE);
+                            fabConfirm.setVisibility(View.GONE);
+                            return;
+                        }
+                        fab.setVisibility(View.VISIBLE);
+                        fabConfirm.setVisibility(View.GONE);
+                    }
+
+                }.start();
+
+            }
+        });
+
+        fabConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteComicsHistoryFromParse(view);
+            }
+        });
+
+    }
+
+    private void deleteComicsHistoryFromParse(View view) {
+
+        ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+        query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+
+        query.findInBackground(new FindCallback<XKCD>() {
+
+            @Override
+            public void done(List<XKCD> comics, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+
+                if (comics.isEmpty()) {
+                    //Toast.makeText(getContext(), "No history yet!", Toast.LENGTH_SHORT).show();
+                    noHistory = true;
+                    textView.setVisibility(View.VISIBLE);
+                    rvComicsHistory.setVisibility(View.INVISIBLE);
+                } else {
+                    noHistory = false;
+                    textView.setVisibility(View.INVISIBLE);
+                    rvComicsHistory.setVisibility(View.VISIBLE);
+                }
+
+                for (int i = 0; i < comics.size(); i ++) {
+                    if (i == comics.size() - 1) {
+                        comics.get(i).deleteInBackground(new DeleteCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                rvComicsHistory.setVisibility(View.INVISIBLE);
+                                fab.setVisibility(View.GONE);
+                                fabConfirm.setVisibility(View.GONE);
+                                textView.setVisibility(View.VISIBLE);
+                                Snackbar.make(view, "Your progress was permanently deleted.", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                            }
+                        });
+                        break;
+                    }
+                    comics.get(i).deleteInBackground();
+                }
+
+                adapter.clear();
+                //swipeContainer.setRefreshing(false);
+            }
+        });
 
     }
 
@@ -123,8 +213,6 @@ public class HistoryFragment extends Fragment {
 
     protected void queryComicsHistory() {
         ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
-        //query.setLimit(10);
-        //query.include(XKCD.KEY_USER); // includes user data as well
         query.addDescendingOrder("createdAt"); // order the objects according to createdAt column value
         query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
 
@@ -138,8 +226,16 @@ public class HistoryFragment extends Fragment {
                 }
 
                 if (comics.isEmpty()) {
-                    Toast.makeText(getContext(), "No history yet!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "No history yet!", Toast.LENGTH_SHORT).show();
+                    textView.setVisibility(View.VISIBLE);
+                    rvComicsHistory.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.GONE);
+                } else {
+                    textView.setVisibility(View.INVISIBLE);
+                    rvComicsHistory.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.VISIBLE);
                 }
+
                 for (XKCD comic : comics) {
                     Log.v(TAG, comic.getComicTitle() + " " + comic.getComicNum());
                 }

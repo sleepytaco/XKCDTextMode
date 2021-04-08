@@ -21,6 +21,8 @@ import com.abukh.xkcdtextmode.XKCDComic;
 import com.abukh.xkcdtextmode.fragments.HistoryFragment;
 import com.abukh.xkcdtextmode.fragments.HomeFragment;
 import com.bumptech.glide.Glide;
+import com.google.android.material.snackbar.Snackbar;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -48,10 +50,12 @@ public class ComicsHistoryAdapter extends RecyclerView.Adapter<ComicsHistoryAdap
 
     private Context context;
     private List<XKCD> comics_history;
+    private Integer inFavoritesView;
 
-    public ComicsHistoryAdapter(Context context, List<XKCD> comics_history) {
+    public ComicsHistoryAdapter(Context context, List<XKCD> comics_history, Integer inFavoritesView) {
         this.context = context;
         this.comics_history = comics_history;
+        this.inFavoritesView = inFavoritesView;
     }
 
     @NonNull
@@ -159,6 +163,15 @@ public class ComicsHistoryAdapter extends RecyclerView.Adapter<ComicsHistoryAdap
                         @Override
                         public void done(ParseException e) {
                             toggleButton();
+                            if (toggleSwitch == 1 && inFavoritesView == 1) {
+                                int pos = ViewHolder.this.getAdapterPosition();
+                                comics_history.remove(pos);
+                                notifyItemRemoved(pos);
+
+                                if (comics_history.size() == 0) {
+                                    Toast.makeText(context, "No favorites yet!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
                         }
                     });
                 }

@@ -13,11 +13,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.abukh.xkcdtextmode.R;
 import com.abukh.xkcdtextmode.XKCD;
 import com.abukh.xkcdtextmode.adapters.ComicsHistoryAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -41,8 +43,8 @@ public class FavoritesFragment extends Fragment {
     private static final String TAG = "FavoritesFragment";
 
     private RecyclerView rvComicsHistory;
+    private TextView textView;
     protected ComicsHistoryAdapter adapter;
-
     protected List<XKCD> allComics;
 
 
@@ -93,14 +95,16 @@ public class FavoritesFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         rvComicsHistory = view.findViewById(R.id.rvComicsHistory);
+        textView = view.findViewById(R.id.textView);
 
         allComics = new ArrayList<>();
-        adapter = new ComicsHistoryAdapter(getContext(), allComics);
+        adapter = new ComicsHistoryAdapter(getContext(), allComics, 1);
 
         rvComicsHistory.setAdapter(adapter);
         rvComicsHistory.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
         rvComicsHistory.setLayoutManager(new LinearLayoutManager(getContext()));
         queryComicsFavorites();
+
     }
 
     @Override
@@ -126,8 +130,14 @@ public class FavoritesFragment extends Fragment {
                 }
 
                 if (comics.isEmpty()) {
-                    Toast.makeText(getContext(), "No favorites yet!", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getContext(), "No favorites yet!", Toast.LENGTH_SHORT).show();
+                    textView.setVisibility(View.VISIBLE);
+                    rvComicsHistory.setVisibility(View.INVISIBLE);
+                } else {
+                    textView.setVisibility(View.INVISIBLE);
+                    rvComicsHistory.setVisibility(View.VISIBLE);
                 }
+
                 for (XKCD comic : comics) {
                     Log.v(TAG, comic.getComicTitle() + " " + comic.getComicNum());
                 }

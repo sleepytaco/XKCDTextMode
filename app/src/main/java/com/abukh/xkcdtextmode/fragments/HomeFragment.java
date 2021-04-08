@@ -15,24 +15,23 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.abukh.xkcdtextmode.AlertDialogFragment;
 import com.abukh.xkcdtextmode.ComicDisplayActivity;
 import com.abukh.xkcdtextmode.LoginActivity;
-import com.abukh.xkcdtextmode.MainActivity;
 import com.abukh.xkcdtextmode.R;
 import com.abukh.xkcdtextmode.XKCD;
 import com.abukh.xkcdtextmode.XKCDComic;
 import com.parse.FindCallback;
 import com.parse.ParseException;
-import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -41,7 +40,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -69,6 +67,9 @@ public class HomeFragment extends Fragment {
     private Button previousComicButton;
     private Button btnLogout;
     private TextView tvLoggedInAs;
+    private TextView tvProgress;
+    private ProgressBar progBar;
+
     private volatile int total_comics = -1;
     private int previousComicNum = -1;
     private int addedToParse = -1;
@@ -120,14 +121,18 @@ public class HomeFragment extends Fragment {
         previousComicButton = view.findViewById(R.id.previousComicButton);
         btnLogout = view.findViewById(R.id.btnLogout);
         tvLoggedInAs = view.findViewById(R.id.tvLoggedInAs);
+        tvProgress = view.findViewById(R.id.tvProgress);
+
+        progBar = view.findViewById(R.id.progBar);
 
         previousComicButton.setVisibility(View.INVISIBLE);
 
-        tvLoggedInAs.setText("Logged in as " + ParseUser.getCurrentUser().getUsername());
+        tvLoggedInAs.setText(Html.fromHtml("Logged in as <b>" + ParseUser.getCurrentUser().getUsername() + "</b>"));
 
         alreadyRead = new ArrayList<>();
 
         getTotalComicsCount(); // set total_comics to the last available number
+        setProgressBar();
 
         getRandomComic.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,6 +179,41 @@ public class HomeFragment extends Fragment {
     }
 
 
+    private void setProgressBar() {
+
+        while (total_comics == -1) {
+
+        }
+
+        progBar.setMax(total_comics);
+
+        ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
+        query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
+
+        query.findInBackground(new FindCallback<XKCD>() {
+
+            @Override
+            public void done(List<XKCD> comics, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with getting posts", e);
+                    return;
+                }
+
+                if (comics.isEmpty()) {
+                    //Toast.makeText(getContext(), "No progress made yet!", Toast.LENGTH_SHORT).show();
+                    progBar.setProgress(0);
+                    tvProgress.setText(0 + "/" + total_comics + " Comics Found");
+                } else {
+                    progBar.setProgress(comics.size());
+                    tvProgress.setText(comics.size() + "/" + total_comics + " Comics Found");
+
+                }
+            }
+        });
+
+    }
+
+
     private int generateUnreadComicNum() { // generates a unique number in the comic range
         Random rand = new Random();
         int random_comic = 1 + rand.nextInt(total_comics);
@@ -189,6 +229,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         previousComicButton.setVisibility(View.VISIBLE);
+        setProgressBar();
     }
 
     private void getTotalComicsCount() {

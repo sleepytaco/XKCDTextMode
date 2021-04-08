@@ -1,8 +1,8 @@
 # *XKCD Text Mode*
 
-**XKCD Text Mode** is a XKCD comic viewer that uses the XKCD API to retrieve and view a comic's transcript and image.
+**XKCD Text Mode** is a XKCD comic viewer that uses the [XKCD API](https://xkcd.com/info.0.json) to retrieve and view a comic's transcript and image.
 
-Time spent: **8** hours spent in total
+Time spent: **14** hours spent in total
 
 ### User Stories
 
@@ -15,7 +15,8 @@ Time spent: **8** hours spent in total
 - [X] Store comics marked favorite by the user using a RecyclerView
 - [X] Bottom naviagtion to switch between Home view, Favorite comics view and History view
 - [X] User can mark/unmark comics as favorites withtin the Favorite and History recycler views
-- [ ] Via a progress bar the user can keep track of number of viewed comics and is updated as the user reads new comics
+- [X] Via a progress bar the user can keep track of number of viewed comics and is updated as the user reads new comics
+- [X] A floating action button in the history view to instantly delete all history
 
 ## Video Walkthrough
 
@@ -26,6 +27,9 @@ Here's a walkthrough of implemented user stories:
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ### Notes
+
+- Referred the an article to implement the [progress bar](https://abhiandroid.com/ui/progressbar).
+- Referred to developer docs to implement the [floating action buttons](https://developer.android.com/guide/topics/ui/floating-action-button).
 
 ### Open-source libraries used
 
