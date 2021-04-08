@@ -15,7 +15,7 @@
         android:gravity="center_horizontal"
         android:text="@string/app_name"
         android:textSize="50sp"
-        android:layout_marginTop="200dp"
+        android:layout_marginTop="190dp"
 
         />
 
