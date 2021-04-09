@@ -1,6 +1,6 @@
 # *XKCD Text Mode*
 
-**XKCD Text Mode** is a XKCD comic viewer that uses the [XKCD API](https://xkcd.com/info.0.json) to retrieve and view a comic's transcript and image.
+**XKCD Text Mode** is a XKCD comic viewer that uses the [XKCD API](https://xkcd.com/info.0.json) to retrieve and view a comic's transcript and image. Uses Parse as a backend to store the users progress.
 
 Time spent: **14** hours spent in total
 
