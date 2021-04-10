@@ -40,6 +40,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -69,6 +70,7 @@ public class HomeFragment extends Fragment {
     private TextView tvLoggedInAs;
     private TextView tvProgress;
     private ProgressBar progBar;
+    private TextView tvProgPercent;
 
     private volatile int total_comics = -1;
     private int previousComicNum = -1;
@@ -122,6 +124,7 @@ public class HomeFragment extends Fragment {
         btnLogout = view.findViewById(R.id.btnLogout);
         tvLoggedInAs = view.findViewById(R.id.tvLoggedInAs);
         tvProgress = view.findViewById(R.id.tvProgress);
+        tvProgPercent = view.findViewById(R.id.tvProgPercent);
 
         progBar = view.findViewById(R.id.progBar);
 
@@ -185,11 +188,28 @@ public class HomeFragment extends Fragment {
 
         }
 
-        progBar.setMax(total_comics);
+        //progBar.setMax(total_comics);
 
         ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
         query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
 
+        DecimalFormat df = new DecimalFormat("#.##");
+
+        // count number of query objects
+        try {
+            int count  =  query.count();
+
+            String progress = df.format((count/(float) total_comics) * 100);
+
+            progBar.setProgress((int) ((count/(float) total_comics) * 100));
+            tvProgress.setText(count + "/" + total_comics + " Comics Found");
+            tvProgPercent.setText(progress + "%");
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        /*
         query.findInBackground(new FindCallback<XKCD>() {
 
             @Override
@@ -210,7 +230,7 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
+        */
     }
 
 
@@ -331,6 +351,7 @@ public class HomeFragment extends Fragment {
         ParseQuery<XKCD> query = ParseQuery.getQuery("XKCD");
         query.whereEqualTo(XKCD.KEY_USER, ParseUser.getCurrentUser());
         query.addDescendingOrder("createdAt"); // order the objects according to createdAt column value
+        query.setLimit(1);
 
         query.findInBackground(new FindCallback<XKCD>() {
 

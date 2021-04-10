@@ -13,8 +13,6 @@ tools:context=".fragments.HomeFragment">
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.50" />
 
-
-
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -22,6 +20,7 @@ tools:context=".fragments.HomeFragment">
         android:gravity="center_horizontal"
         android:text="@string/app_name"
         android:textSize="50sp"
+        android:textStyle="bold|italic"
         app:layout_constraintLeft_toLeftOf="@id/guideline"
         app:layout_constraintRight_toRightOf="@+id/guideline"
         app:layout_constraintTop_toTopOf="parent"
@@ -34,11 +33,26 @@ tools:context=".fragments.HomeFragment">
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:indeterminate="false"
+        android:max="100"
         android:layout_marginTop="40dp"
         app:layout_constraintBottom_toTopOf="@id/tvProgress"
         app:layout_constraintLeft_toLeftOf="@id/guideline"
         app:layout_constraintRight_toRightOf="@id/guideline"
         app:layout_constraintTop_toBottomOf="@id/textView"/>
+
+    <TextView
+        android:id="@+id/tvProgPercent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/progBar"
+        android:background="@android:color/transparent"
+        app:layout_constraintLeft_toLeftOf="@id/guideline"
+        app:layout_constraintRight_toRightOf="@id/guideline"
+        app:layout_constraintTop_toTopOf="@id/progBar"
+        tools:text="100%"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:gravity="center" />
 
     <TextView
         android:layout_width="wrap_content"
